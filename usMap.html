@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+	#statesvg {width:60%;float:left}
+	#cereal {width:55%;float:left}
+	#donuts{width:35%;float:right}
+	
+	
+	.state{
+		fill: none;
+		stroke: #a9a9a9;
+		stroke-width: 1;
+	}
+	.state:hover{
+		fill-opacity:0.5;
+	}
+	#tooltip {   
+		position: absolute;           
+		text-align: center;
+		padding: 20px;             
+		margin: 10px;
+		font: 12px sans-serif;        
+		background: lightsteelblue;   
+		border: 1px;      
+		border-radius: 2px;           
+		pointer-events: none;         
+	}
+	#tooltip h4{
+		margin:0;
+		font-size:14px;
+	}
+	#tooltip{
+		background:rgba(0,0,0,0.9);
+		border:1px solid grey;
+		border-radius:5px;
+		font-size:12px;
+		width:auto;
+		padding:4px;
+		color:white;
+		opacity:0;
+	}
+	#tooltip table{
+		table-layout:fixed;
+	}
+	#tooltip tr td{
+		padding:0;
+		margin:0;
+	}
+	#tooltip tr td:nth-child(1){
+		width:50px;
+	}
+	#tooltip tr td:nth-child(2){
+		text-align:center;
+	}
+	
+	h3 {
+    margin-top: 15px;
+}
+.gender-name {
+    margin: 0 !important;
+}
+
+.key-dot { 
+    display: inline-block;
+    height: 10px;
+    margin-right: .5em;
+    width: 10px;
+}
+
+.legend {
+    margin-right:20px;
+}
+
+/*D3 Horizonal Legend2*/
+.legends5 {
+    float:left;
+    margin-right: 1em;
+}
+
+/* css for cereal nutrition facts */ 
+@import "compass/css3";
+
+.image {
+  width: 250px;
+  float: left;
+  margin: 20px;
+}
+body {
+  font-size: small;
+  line-height: 1.4;
+}
+p {
+  margin: 0;
+}
+
+.performance-facts {
+  border: 1px solid black;
+  margin: 20px;
+  float: left;
+  width: 280px;
+  padding: 0.5rem;
+  table {
+    border-collapse: collapse;
+  }
+}
+.performance-facts__title {
+  font-weight: bold;
+  font-size: 2rem;
+  margin: 0 0 0.25rem 0;
+}
+.performance-facts__header {
+  border-bottom: 10px solid black;
+  padding: 0 0 0.25rem 0;
+  margin: 0 0 0.5rem 0;
+  p {
+    margin: 0;
+  }
+}
+.performance-facts__table {
+  width: 100%;
+  thead tr {
+    th, td {
+      border: 0;
+    }
+  }
+  th, td {
+    font-weight: normal;
+    text-align: left;
+    padding: 0.25rem 0;
+    border-top: 1px solid black; 
+    white-space: nowrap;
+  }
+  td {
+    &:last-child {
+      text-align: right;
+    }
+  }
+  .blank-cell {
+    width: 1rem;
+    border-top: 0;
+  }
+  .thick-row {
+    th, td {
+      border-top-width: 5px;
+    }
+  }
+}
+.small-info {
+  font-size: 0.7rem;
+}
+
+.performance-facts__table--small {
+  @extend .performance-facts__table;
+  border-bottom: 1px solid #999;
+  margin: 0 0 0.5rem 0;
+  thead {
+    tr {
+      border-bottom: 1px solid black; 
+    }
+  }
+  td {
+    &:last-child {
+      text-align: left;
+    }
+  }
+  th, td {
+    border: 0;
+    padding: 0;
+  }
+}
+
+.performance-facts__table--grid {
+  @extend .performance-facts__table;
+  margin: 0 0 0.5rem 0;
+  td {
+    &:last-child {
+      text-align: left;
+      &::before {
+        content: "•";
+        font-weight: bold;
+        margin: 0 0.25rem 0 0;
+      }
+    }
+  }
+}
+
+.text-center {
+  text-align: center;
+}
+.thick-end {
+  border-bottom: 10px solid black;
+}
+.thin-end {
+  border-bottom: 1px solid black;
+}
+
+</style>
+<body>
+<div id="tooltip"></div><!-- div to hold tooltip. -->
+<svg width="960" height="600" id="statesvg"></svg> <!-- svg to hold the map. -->
+<div id="donuts">
+<form>
+Year<select name="years" id="years">
+  <option value="2011" selected>2011</option>
+  <option value="2012">2012</option>
+  <option value="2013">2013</option>
+  <option value="2014">2014</option>
+  <option value="2015">2015</option>
+</select> 
+</form>
+	<div width="320" height="320" id="genderChart"></div>
+	<div width="320" height="320" id="fartsChart"></div>
+	<div width="320" height="320" id="ageChart"></div>
+	<div width="320" height="320" id="schoolChart"></div>
+	<div width="320" height="320" id="incomeChart"></div>
+	<div width="320" height="320" id="raceChart"></div>
+
+</div>
+<div id="cereal"> 
+<section class="performance-facts">
+  <header class="performance-facts__header">
+    <h1 class="performance-facts__title">Nutrition Facts</h1>
+    <p id="servingSize">Serving Size </p>
+  </header>
+  <table class="performance-facts__table">
+    <thead>
+      <tr>
+        <th  id="amtPerServing" colspan="3" class="small-info">
+          Amount Per Serving
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th id="calories" colspan="2">
+          <b>Calories</b>
+          
+        </th>
+        <td id="amtFrSugar">
+          Calories from Sugar
+        </td>
+      </tr>
+      
+      <tr>
+        <th colspan="2">
+          
+        </th>
+        <td id="amtFrFat">
+          Calories from Fat
+        </td>
+      </tr>
+      <tr class="thick-row">
+        <td colspan="3" class="small-info">
+          <b></b>
+        </td>
+      </tr>
+      <tr>
+        <th id="carbs" colspan="2">
+          <b>Carbs</b>
+        </th>
+      </tr>
+    
+ 
+        <th id="vitamins" colspan="2">
+          <b>Vitamins</b>
+          
+        </th>
+        <td>
+          
+        </td>
+      </tr>
+  
+      <tr>
+        <th id="sodium" colspan="2">
+          <b>Sodium</b>
+        </th>
+        <td>
+          
+        </td>
+      </tr>
+      
+          <th id="fat" colspan="2">
+          <b>Fat</b>
+          
+        </th>
+        <td>
+          
+        </td>
+      </tr>
+  
+              <th  id="fibre" colspan="2">
+          <b>Fibre</b>
+          
+        </th>
+        <td>
+          
+        </td>
+      </tr>
+
+
+        <th  id="potassium" colspan="2">
+          <b>Potassium</b>
+          
+        </th>
+        <td>
+          
+        </td>
+      </tr>
+
+        <th id="sugars" colspan="2">
+          <b>Sugars</b>
+          
+        </th>
+        <td>
+          
+        </td>
+      </tr>
+
+
+      <tr class="thick-end">
+        <th id="protein"colspan="2">
+          <b>Protein</b>
+          
+        </th>
+        <td>
+          
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+ </div>
+<script src="uStates.js"></script> <!-- creates uStates. -->
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script>
+
+	function tooltipHtml(n, d){	/* function to create html content string in tooltip div. */
+		return "<h4>"+n+"</h4><table>"+
+			"<tr><td>Poverty Rate</td><td>"+(d.data["Poverty Rate"])+"%</td></tr>"+
+			"<tr><td>Favourite Cereal</td><td>"+(d.data["Favourite"])+"</td></tr>"+
+			"</table>";
+	}
+	
+	//have d3 read in csv data for states and their poverty rate
+	d3.csv('CerealObesityPoverty - Obesity Poverty.csv', function ( data ) {
+	
+		var sampleData ={};	/* Sample random data. */	
+		data.forEach(function(d){ 
+				sampleData[d.State]={data:d, color:d3.interpolate("#ffffcc", "#800026")(d["Poverty Rate"]/12)}; 
+						//TODO: add key for poverty colouration on the map
+						
+						
+				//console.log(JSON.stringify(sampleData[d]));
+			});
+		
+		/* draw states on id #statesvg */	
+		uStates.draw("#statesvg", sampleData, tooltipHtml);
+		
+		d3.select(self.frameElement).style("height", "600px");
+	}); 
+</script>
+
+</body>
